@@ -4,76 +4,6 @@ import {
   selectBdUserResourceList
 } from '@/api/user'
 
-/**
- * 递归过滤异步路由表
- */
-function filterAsyncRoutes(routes, permissionList, permission) {
-  const res = []
-
-  routes.forEach(route => {
-    const tmp = { ...route }
-    if (permissionList.includes(route.name)) {
-      if (route.meta) {
-        tmp.meta.permission = permission[tmp.name]
-      }
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, permissionList, permission)
-      }
-      res.push(tmp)
-    }
-  })
-  return res
-}
-
-// 筛选线上配置的菜单
-function filterMenu(data) {
-  let res = {}
-  let type = false
-
-  function handleData(data) {
-    for (var i = 0; i < data.length; i++) {
-      if (type) {
-        break
-      }
-      if (data[i].resourceName === '发布系统') {
-        res = data[i]
-        type = true
-      } else if (data[i].children) {
-        handleData(data[i].children)
-      }
-    }
-  }
-  handleData(data)
-  return res
-}
-
-// 对比内容生成
-function contrastGenerate(data) {
-  let text = ''
-  const permission = {}
-  function handleData(data, parent) {
-    data.map(item => {
-      if (item.resourceType === 0) {
-        text += ',' + item.resourceAuthority
-        if (item.children) {
-          handleData(item.children, item.resourceAuthority)
-        }
-      } else {
-        parent.split(',').map(key => {
-          if (permission[key]) {
-            permission[key][item.redirectUrl] = 1
-          } else {
-            permission[key] = {}
-            permission[key][item.redirectUrl] = 1
-          }
-        })
-      }
-    })
-  }
-  handleData(data.children, data.resourceAuthority)
-  return { permissionList: text.split(','), permission: permission }
-}
-
 const state = {
   routes: [],
   addRoutes: [],
@@ -179,6 +109,18 @@ const actions = {
       //   resolve([])
       //   // reject(error)
       // })
+      let accessedRoutes
+      if (roles.includes('admin')) {
+        accessedRoutes = asyncRoutes || []
+      } else {
+        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+      }
+      commit('SET_ROUTES', accessedRoutes)
+      resolve(accessedRoutes)
+
+      // commit('SET_LEFT_MENUS', asyncRoutes)
+      // commit('SET_ROUTES', asyncRoutes)
+      // resolve(accessedRoutes)
     })
   },
   // 左侧菜单列表

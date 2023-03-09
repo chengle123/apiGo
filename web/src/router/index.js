@@ -101,7 +101,48 @@ export const constantRoutes = [
  * 需要根据用户角色动态加载的路由
  */
 export const asyncRoutes = [
-
+    {
+        path: '/InterfaceManagement',
+        component: Layout,
+        redirect: '/InterfaceManagement/list',
+        name: 'InterfaceManagement',
+        children: [
+            {
+                path: 'list',
+                component: () => import('@/views/InterfaceManagement/list'),
+                name: 'InterfaceManagementList',
+                meta: { title: '接口管理'}
+            },
+        ]
+    },
+    {
+        path: '/ParameterManagement',
+        component: Layout,
+        redirect: '/ParameterManagement/list',
+        name: 'ParameterManagement',
+        children: [
+            {
+                path: 'list',
+                component: () => import('@/views/ParameterManagement/list'),
+                name: 'ParameterManagementList',
+                meta: { title: '参数管理'}
+            },
+        ]
+    },
+    {
+        path: '/ProjectTeamManagement',
+        component: Layout,
+        redirect: '/ProjectTeamManagement/list',
+        name: 'ProjectTeamManagement',
+        children: [
+            {
+                path: 'list',
+                component: () => import('@/views/ProjectTeamManagement/list'),
+                name: 'ProjectTeamManagementList',
+                meta: { title: '项目组管理'}
+            },
+        ]
+    },
 ]
 
 export const endRoutes = [
